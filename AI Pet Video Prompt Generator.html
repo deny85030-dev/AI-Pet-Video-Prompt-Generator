@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- ===== ANTI COPAS & ANTI KLIK KANAN ===== -->
+    <script type="text/javascript">
+        function disableSelection(e) {
+            if (typeof e.onselectstart != "undefined") e.onselectstart = function() { return false };
+            else if (typeof e.style.MozUserSelect != "undefined") e.style.MozUserSelect = "none";
+            else e.onmousedown = function() { return false };
+            e.style.cursor = "default"
+        }
+        window.onload = function() { disableSelection(document.body) }
+    </script>
+    <script type="text/javascript">
+        function mousedwn(e) {
+            try { if (event.button == 2 || event.button == 3) return false } catch (e) { if (e.which == 3) return false }
+        }
+        document.oncontextmenu = function() { return false };
+        document.ondragstart = function() { return false };
+        document.onmousedown = mousedwn
+    </script>
+    <style type="text/css">
+        * : (input, textarea) {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+    </style>
+    <style type="text/css">
+        img {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+    </style>
+    <script type="text/javascript">
+        document.onkeydown = function(e) {
+            e = e || window.event;
+            if (e.keyCode == 123 || e.keyCode == 18) { return false }
+        }
+    </script>
+    <!-- ===== END ANTI COPAS ===== -->
+
+    <title>AI Pet Video Prompt Generator · ruangkreator</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rk: {
+                            primary: '#0b7c6c',
+                            secondary: '#1b9a86',
+                            accent: '#2b9e8a',
+                            white: '#ffffff',
+                            page: '#f6faf9',
+                            input: '#f2f8f6',
+                            main: '#0b2c27',
+                            sec: '#4b6a64',
+                            light: '#8ba8a2',
+                            border: '#e2eee9',
+                            errText: '#b34033',
+                            errBg: '#fdf3f0',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'rk-card': '0 10px 25px -5px rgba(0, 80, 70, 0.15)',
+                        'rk-btn': '0 10px 20px -5px rgba(11, 124, 108, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ===== GLOBAL ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            background: #f6faf9;
+            color: #0b2c27;
+            min-height: 100vh;
+        }
+
+        /* ===== LOGIN CARD ===== */
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            border-radius: 40px;
+            padding: 40px 32px 32px;
+            box-shadow: 0 30px 60px -20px rgba(0, 80, 70, 0.15), 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 150, 136, 0.08);
+            transition: transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0b7c6c, #2b9e8a, #0b7c6c);
+            background-size: 200% 100%;
+            animation: gradientShine 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientShine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand .avatar {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(145deg, #0b7c6c, #1f9d8a);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 10px 24px -6px rgba(11, 124, 108, 0.25);
+        }
+
+        .brand h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0b2c27;
+            letter-spacing: -0.3px;
+        }
+
+        .brand h1 span {
+            font-weight: 300;
+            color: #2b9e8a;
+        }
+
+        .brand .sub {
+            font-size: 13px;
+            color: #6e8b86;
+            margin-top: 4px;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
+        .brand .sub i {
+            color: #0b7c6c;
+            margin-right: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1d4a43;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 6px;
+        }
+
+        .form-group label i {
+            color: #0b7c6c;
+            width: 18px;
+            font-size: 13px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #f2f8f6;
+            border: 1.5px solid #e2eeea;
+            border-radius: 16px;
+            color: #0b2c27;
+            font-size: 15px;
+            font-weight: 500;
+            outline: none;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus {
+            border-color: #0b7c6c;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(11, 124, 108, 0.08);
+        }
+
+        .form-group input::placeholder {
+            color: #a5bfb9;
+            font-weight: 400;
+            font-size: 14px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(145deg, #0b7c6c, #1b9a86);
+            border: none;
+            border-radius: 60px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s;
+            font-family: 'Inter', sans-serif;
+            margin-top: 8px;
+            box-shadow: 0 6px 18px -6px rgba(11, 124, 108, 0.3);
+            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-login:hover {
+            transform: scale(1.01);
+            box-shadow: 0 12px 28px -10px rgba(11, 124, 108, 0.4);
+            background: linear-gradient(145deg, #0a6f61, #178d7a);
+        }
+
+        .btn-login:active {
+            transform: scale(0.98);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-msg {
+            background: #fdf3f0;
+            border: 1px solid #f5d6d0;
+            border-radius: 16px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #b34033;
+            display: none;
+            margin-bottom: 16px;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .error-msg i {
+            font-size: 16px;
+            color: #b34033;
+        }
+
+        .error-msg.show {
+            display: flex;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%,
+            100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        .contact-info {
+            margin-top: 26px;
+            padding-top: 20px;
+            border-top: 1px solid #e2eee9;
+            text-align: center;
+            font-size: 13px;
+            color: #4b6a64;
+        }
+
+        .contact-info i {
+            color: #0b7c6c;
+            margin-right: 6px;
+        }
+
+        .contact-info a {
+            color: #0b7c6c;
+            text-decoration: none;
+            font-weight: 700;
+            border-bottom: 1.5px dotted rgba(11, 124, 108, 0.25);
+            transition: 0.2s;
+        }
+
+        .contact-info a:hover {
+            color: #064d42;
+            border-bottom-color: #064d42;
+        }
+
+        .contact-info .small-note {
+            font-size: 11px;
+            color: #8ba8a2;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .version {
+            text-align: center;
+            font-size: 11px;
+            color: #b2ccc5;
+            margin-top: 18px;
+            letter-spacing: 0.3px;
+            font-weight: 400;
+        }
+
+        .spinner-sm {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== APP STYLES ===== */
+        .rk-card {
+            background-color: #ffffff;
+            border: 1px solid #e2eee9;
+            box-shadow: 0 10px 25px -5px rgba(0, 80, 70, 0.15);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .rk-card:hover {
+            border-color: #1b9a86;
+            transform: translateY(-2px);
+        }
+
+        .rk-input {
+            background-color: #f2f8f6;
+            border: 1px solid #e2eee9;
+            color: #0b2c27;
+        }
+
+        .rk-input:focus {
+            border-color: #0b7c6c;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(11, 124, 108, 0.2);
+        }
+
+        .rk-btn-primary {
+            background: linear-gradient(135deg, #0b7c6c 0%, #1b9a86 100%);
+            color: #ffffff;
+            box-shadow: 0 10px 20px -5px rgba(11, 124, 108, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .rk-btn-primary:hover {
+            background: linear-gradient(135deg, #1b9a86 0%, #2b9e8a 100%);
+            box-shadow: 0 12px 22px -4px rgba(11, 124, 108, 0.4);
+        }
+
+        .rk-line-accent {
+            background: linear-gradient(90deg, #0b7c6c 0%, #2b9e8a 50%, #0b7c6c 100%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f2f8f6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8ba8a2;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b6a64;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 5px;
+            right: 5px;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            pointer-events: none;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px 24px;
+                border-radius: 28px;
+            }
+            .brand .avatar {
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+            }
+            .brand h1 { font-size: 20px; }
+            .form-group input { padding: 12px 14px; font-size: 14px; }
+            .btn-login { padding: 14px; font-size: 15px; }
+            .contact-info { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================ -->
+    <!-- ===== LOGIN CARD ===== -->
+    <!-- ============================================================ -->
+    <div id="loginContainer" style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:#f6faf9; background-image:radial-gradient(circle at 10% 20%, rgba(0,150,136,0.04) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(0,200,150,0.03) 0%, transparent 60%);">
+        <div class="login-card" id="loginCard">
+            <div class="brand">
+                <div class="avatar">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                </div>
+                <h1>ruang<span>kreator</span></h1>
+                <div class="sub">
+                    <i class="fa-regular fa-circle-check"></i> AI Pet Video Prompt
+                </div>
+            </div>
+
+            <div class="error-msg" id="loginError">
+                <i class="fa-regular fa-circle-exclamation"></i>
+                <span id="errorText">Username atau password salah</span>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-regular fa-user"></i> Nama Pengguna</label>
+                <input type="text" id="usernameInput" placeholder="Masukkan username" autocomplete="username" />
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-regular fa-lock"></i> Kata Sandi</label>
+                <input type="password" id="passwordInput" placeholder="Masukkan password" autocomplete="current-password" />
+            </div>
+
+            <button class="btn-login" id="loginBtn">
+                <i class="fa-regular fa-arrow-right-to-bracket"></i> Masuk
+            </button>
+
+            <div class="contact-info">
+                <i class="fa-regular fa-headset"></i> Butuh akses? Hubungi
+                <a href="tel:087763865954"><strong>0877-6386-5954</strong></a>
+                <span class="small-note"><i class="fa-regular fa-comment-dots"></i> WhatsApp / Telepon</span>
+            </div>
+
+            <div class="version">v2.0 · ruangkreator.my.id</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== MAIN APP (hidden until login) ===== -->
+    <!-- ============================================================ -->
+    <div id="mainAppArea" style="display:none; min-height:100vh; background:#f6faf9;">
+
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
+
+        <!-- Header -->
+        <header class="sticky top-0 z-40 bg-white border-b border-rk-border px-4 lg:px-8 py-3.5 flex items-center justify-between shadow-sm">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0b7c6c] to-[#1f9d8a] flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-paw text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-base lg:text-lg text-rk-main tracking-tight flex items-center gap-2">
+                        Viral Pet Video AI Generator
+                        <span class="text-[10px] bg-rk-input text-rk-primary font-bold px-2 py-0.5 rounded-full border border-rk-border">by RuangKreator</span>
+                    </h1>
+                    <p class="text-xs text-rk-sec">Smartphone Handheld Ultra-Realistic Prompts (Veo, Kling, Hailuo, Wan, PixVerse)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="resetAll()" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-rk-input hover:bg-rk-border text-rk-main border border-rk-border transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left text-rk-sec"></i>
+                    <span>Reset</span>
+                </button>
+                <button onclick="logoutUser()" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-rk-input hover:bg-rk-border text-rk-main border border-rk-border transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-right-from-bracket text-rk-sec"></i>
+                    <span>Keluar</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="h-0.5 w-full rk-line-accent"></div>
+
+        <!-- Main Workspace -->
+        <div class="flex flex-1 overflow-hidden">
+
+            <!-- Sidebar -->
+            <aside class="w-80 bg-white border-r border-rk-border p-5 overflow-y-auto space-y-6 hidden md:block shrink-0 shadow-sm">
+                <div class="flex items-center justify-between border-b border-rk-border pb-3">
+                    <h2 class="text-xs font-extrabold uppercase tracking-wider text-rk-primary flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i>
+                        Pengaturan Video
+                    </h2>
+                    <span class="text-[10px] text-rk-light font-bold">Auto Presets</span>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-rk-main block">1. Hewan Peliharaan (Pet)</label>
+                    <select id="setting-pet" onchange="updateSettings()" class="w-full rk-input rounded-xl p-2.5 text-xs font-semibold cursor-pointer">
+                        <option value="Kitten" selected>🐱 Kitten (Anak Kucing)</option>
+                        <option value="Puppy">🐶 Puppy (Anak Anjing)</option>
+                        <option value="Rabbit">🐰 Rabbit (Kelinci)</option>
+                        <option value="Hamster">🐹 Hamster</option>
+                        <option value="Guinea Pig">🐹 Guinea Pig</option>
+                        <option value="Duck">🦆 Duck (Anak Bebek)</option>
+                        <option value="Cockatiel">🦜 Cockatiel (Burung)</option>
+                        <option value="Hedgehog">🦔 Hedgehog (Landak Mini)</option>
+                        <option value="Ferret">🦦 Ferret</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-rk-main block">2. Genre Video</label>
+                    <select id="setting-genre" onchange="updateSettings()" class="w-full rk-input rounded-xl p-2.5 text-xs font-semibold cursor-pointer">
+                        <option value="Cute" selected>🥰 Cute (Menggemaskan)</option>
+                        <option value="Funny">😂 Funny (Konyol & Lucu)</option>
+                        <option value="Emotional">🥺 Emotional (Mengharukan)</option>
+                        <option value="Heartwarming">❤️ Heartwarming (Hangat)</option>
+                        <option value="Friendship">🤝 Friendship (Persahabatan)</option>
+                        <option value="Surprise">😲 Surprise (Kejutan)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-rk-main block">3. Lokasi Dalam Rumah</label>
+                    <select id="setting-location" onchange="updateSettings()" class="w-full rk-input rounded-xl p-2.5 text-xs font-semibold cursor-pointer">
+                        <option value="Living Room" selected>🛋️ Living Room (Ruang Tamu)</option>
+                        <option value="Kitchen">🍳 Kitchen (Dapur)</option>
+                        <option value="Bedroom">🖏 Bedroom (Kamar Tidur)</option>
+                        <option value="Balcony">🌿 Balcony (Balkon)</option>
+                        <option value="Laundry">🧺 Laundry Area</option>
+                        <option value="Reading Corner">📚 Reading Corner (Sudut Baca)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-rk-main block">4. Pencahayaan (Lighting)</label>
+                    <select id="setting-lighting" onchange="updateSettings()" class="w-full rk-input rounded-xl p-2.5 text-xs font-semibold cursor-pointer">
+                        <option value="Morning" selected>🌅 Morning Sun rays (Pagi Hari)</option>
+                        <option value="Afternoon">☀️ Bright Afternoon (Siang Cerah)</option>
+                        <option value="Golden Hour">🌇 Golden Hour Warm (Senja)</option>
+                        <option value="Cloudy Day">☁️ Soft Daylight (Mendung Soft)</option>
+                        <option value="Indoor Warm">💡 Cozy Indoor Lamp (Lampu Hangat)</option>
+                    </select>
+                </div>
+
+                <div class="p-3.5 bg-rk-input border border-rk-border rounded-2xl space-y-1">
+                    <span class="text-[10px] font-extrabold text-rk-primary uppercase tracking-wider block">Gaya Video (Default)</span>
+                    <p class="text-xs font-bold text-rk-main flex items-center gap-1.5">
+                        <i class="fa-solid fa-mobile-screen text-rk-secondary"></i>
+                        Smartphone Handheld Footage
+                    </p>
+                    <p class="text-[11px] text-rk-sec leading-tight">Video otomatis diformat seperti rekaman HP pemilik asli di rumah.</p>
+                </div>
+
+                <div class="space-y-2 pt-2">
+                    <span class="text-[10px] font-extrabold uppercase text-rk-sec tracking-wider">Aturan Template Terkunci</span>
+                    <div class="flex flex-wrap gap-1 text-[10px]">
+                        <span class="px-2 py-0.5 rounded bg-rk-input text-rk-sec border border-rk-border">photorealistic</span>
+                        <span class="px-2 py-0.5 rounded bg-rk-input text-rk-sec border border-rk-border">smartphone footage</span>
+                        <span class="px-2 py-0.5 rounded bg-rk-input text-rk-sec border border-rk-border">realistic fur</span>
+                        <span class="px-2 py-0.5 rounded bg-rk-input text-rk-sec border border-rk-border">no music</span>
+                        <span class="px-2 py-0.5 rounded bg-rk-input text-rk-sec border border-rk-border">sfx only</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto p-4 lg:p-8 space-y-8">
+
+                <!-- Step 1 -->
+                <section class="max-w-4xl mx-auto space-y-4">
+                    <div class="rk-card p-6 rounded-3xl relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-extrabold text-rk-primary uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-rk-primary text-white flex items-center justify-center text-[10px] font-bold">1</span>
+                                Masukkan Ide Video Pet
+                            </span>
+                            <span class="text-xs text-rk-sec">Atau biarkan kosong untuk ide otomatis</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <textarea id="video-idea-input" rows="3" placeholder="Contoh: Kitten mencoba mencuri camilan dari atas meja tapi malah tersangkut kantong plastik dengan ekspresi lucu..." class="w-full rk-input rounded-2xl p-4 text-xs lg:text-sm placeholder:text-rk-light focus:ring-2 focus:ring-rk-primary transition resize-none"></textarea>
+
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-[11px] font-bold text-rk-sec">Inspirasi Cepat:</span>
+                                <button onclick="applyPresetIdea('Mencoba mencuri makanan owner lalu kaget')" class="text-[11px] px-2.5 py-1 rounded-lg bg-rk-input hover:bg-rk-border text-rk-main border border-rk-border transition">🍪 Mencuri Makanan</button>
+                                <button onclick="applyPresetIdea('Kaget melihat ketimun di lantai dan melompat')" class="text-[11px] px-2.5 py-1 rounded-lg bg-rk-input hover:bg-rk-border text-rk-main border border-rk-border transition">🥒 Kaget Ketimun</button>
+                                <button onclick="applyPresetIdea('Mencoba menangkap bayangan di dinding saat sore hari')" class="text-[11px] px-2.5 py-1 rounded-lg bg-rk-input hover:bg-rk-border text-rk-main border border-rk-border transition">🐾 Kejar Bayangan</button>
+                                <button onclick="applyPresetIdea('Tertidur lelap di tempat yang tidak biasa sampai mengorok halus')" class="text-[11px] px-2.5 py-1 rounded-lg bg-rk-input hover:bg-rk-border text-rk-main border border-rk-border transition">💤 Tertidur Unik</button>
+                            </div>
+
+                            <div class="pt-2 flex justify-end">
+                                <button id="btn-generate-ideas" onclick="generate10Ideas()" class="w-full sm:w-auto rk-btn-primary font-extrabold text-xs px-6 py-3.5 rounded-2xl transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    <span>Generate 10 Ide Viral</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 2: 10 Ideas -->
+                <section id="section-ideas" class="max-w-4xl mx-auto space-y-4 hidden">
+                    <div class="flex items-center justify-between border-b border-rk-border pb-3">
+                        <div>
+                            <span class="text-xs font-extrabold text-rk-primary uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-rk-primary text-white flex items-center justify-center text-[10px] font-bold">2</span>
+                                Pilih Salah Satu Ide Viral
+                            </span>
+                            <h2 class="text-lg font-bold text-rk-main mt-0.5">10 Konsep Ide Video Viral AI</h2>
+                        </div>
+                        <button onclick="generate10Ideas()" class="text-xs text-rk-primary hover:text-rk-secondary font-bold flex items-center gap-1 bg-white px-3 py-1.5 rounded-xl border border-rk-border shadow-sm">
+                            <i class="fa-solid fa-arrows-rotate"></i> Acak Ulang
+                        </button>
+                    </div>
+                    <div id="ideas-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+                </section>
+
+                <!-- Step 3: Output -->
+                <section id="section-output" class="max-w-4xl mx-auto space-y-6 hidden">
+
+                    <div class="rk-card p-5 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-l-4 border-l-rk-primary">
+                        <div>
+                            <span class="text-[10px] font-extrabold text-rk-primary uppercase tracking-wider bg-rk-input px-2.5 py-1 rounded-full border border-rk-border">Prompt Siap Pakai</span>
+                            <h3 id="output-selected-title" class="text-base font-extrabold text-rk-main mt-1">Judul Ide Terpilih</h3>
+                            <p id="output-selected-desc" class="text-xs text-rk-sec mt-0.5 line-clamp-1">Deskripsi singkat ide video hewan...</p>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <button onclick="copyAllPrompts()" class="flex-1 sm:flex-none rk-btn-primary font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Copy All</span>
+                            </button>
+                            <button onclick="downloadAllTxt()" class="flex-1 sm:flex-none bg-rk-input hover:bg-rk-border text-rk-main border border-rk-border font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-download text-rk-sec"></i>
+                                <span>Download TXT</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="rk-card p-6 rounded-3xl space-y-3 relative">
+                        <div class="flex items-center justify-between border-b border-rk-border pb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-rk-input text-rk-primary border border-rk-border flex items-center justify-center font-bold text-xs">📸</div>
+                                <h4 class="text-xs font-extrabold text-rk-main uppercase tracking-wider">IMAGE PROMPT (Gambar Pertama)</h4>
+                            </div>
+                            <button onclick="copyToClipboard('prompt-image-text', 'Image Prompt')" class="text-xs text-rk-primary hover:bg-rk-primary hover:text-white font-bold flex items-center gap-1 bg-rk-input px-3 py-1.5 rounded-lg border border-rk-border transition">
+                                <i class="fa-solid fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <p id="prompt-image-text" class="text-xs font-mono text-rk-main bg-rk-input p-4 rounded-2xl border border-rk-border leading-relaxed whitespace-pre-wrap select-all"></p>
+                    </div>
+
+                    <div class="rk-card p-6 rounded-3xl space-y-3 relative">
+                        <div class="flex items-center justify-between border-b border-rk-border pb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-rk-input text-rk-primary border border-rk-border flex items-center justify-center font-bold text-xs">🎥</div>
+                                <h4 class="text-xs font-extrabold text-rk-main uppercase tracking-wider">MOTION PROMPT 1 (Melanjutkan Gambar Pertama)</h4>
+                            </div>
+                            <button onclick="copyToClipboard('prompt-motion1-text', 'Motion Prompt 1')" class="text-xs text-rk-primary hover:bg-rk-primary hover:text-white font-bold flex items-center gap-1 bg-rk-input px-3 py-1.5 rounded-lg border border-rk-border transition">
+                                <i class="fa-solid fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <p id="prompt-motion1-text" class="text-xs font-mono text-rk-main bg-rk-input p-4 rounded-2xl border border-rk-border leading-relaxed whitespace-pre-wrap select-all"></p>
+                    </div>
+
+                    <div class="rk-card p-6 rounded-3xl space-y-3 relative">
+                        <div class="flex items-center justify-between border-b border-rk-border pb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-rk-input text-rk-primary border border-rk-border flex items-center justify-center font-bold text-xs">🎬</div>
+                                <h4 class="text-xs font-extrabold text-rk-main uppercase tracking-wider">MOTION PROMPT 2 (Melanjutkan Motion 1 & Ending)</h4>
+                            </div>
+                            <button onclick="copyToClipboard('prompt-motion2-text', 'Motion Prompt 2')" class="text-xs text-rk-primary hover:bg-rk-primary hover:text-white font-bold flex items-center gap-1 bg-rk-input px-3 py-1.5 rounded-lg border border-rk-border transition">
+                                <i class="fa-solid fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <p id="prompt-motion2-text" class="text-xs font-mono text-rk-main bg-rk-input p-4 rounded-2xl border border-rk-border leading-relaxed whitespace-pre-wrap select-all"></p>
+                    </div>
+
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== ANTI CTRL+U ===== -->
+    <!-- ============================================================ -->
+    <script type='text/javascript'>
+        //<![CDATA[
+        function redirectCU(e) { if (e.ctrlKey && e.which == 85) { window.location.replace("/"); return false; } }
+        document.onkeydown = redirectCU;
+        //]]>
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- ===== MAIN JAVASCRIPT ===== -->
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // LOGIN SYSTEM
+        // ============================================================
+        (function() {
+            const VALID_CREDENTIALS = {
+                username: 'admin',
+                password: '12345'
+            };
+
+            const loginContainer = document.getElementById('loginContainer');
+            const mainAppArea = document.getElementById('mainAppArea');
+            const usernameInput = document.getElementById('usernameInput');
+            const passwordInput = document.getElementById('passwordInput');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+            const errorText = document.getElementById('errorText');
+
+            function checkSession() {
+                if (localStorage.getItem('studio_session') === 'logged_in') {
+                    showApp();
+                }
+            }
+
+            function showApp() {
+                loginContainer.style.display = 'none';
+                mainAppArea.style.display = 'block';
+                // Initialize app after login
+                initApp();
+            }
+
+            window.logoutUser = function() {
+                localStorage.removeItem('studio_session');
+                location.reload();
+            };
+
+            function handleLogin() {
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                loginError.classList.remove('show');
+
+                if (!username || !password) {
+                    errorText.textContent = 'Username dan password harus diisi.';
+                    loginError.classList.add('show');
+                    return;
+                }
+
+                if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
+                    localStorage.setItem('studio_session', 'logged_in');
+                    showApp();
+                } else {
+                    errorText.textContent = 'Username atau password salah. Hubungi admin jika lupa.';
+                    loginError.classList.add('show');
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            }
+
+            loginBtn.addEventListener('click', handleLogin);
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const active = document.activeElement;
+                    if (active === usernameInput || active === passwordInput) {
+                        handleLogin();
+                    }
+                }
+            });
+
+            checkSession();
+
+            console.log('🌿 ruangkreator.my.id · login system');
+            console.log('🔑 username: admin · password: 12345');
+        })();
+
+        // ============================================================
+        // APP LOGIC
+        // ============================================================
+        let currentSettings = {
+            pet: 'Kitten',
+            genre: 'Cute',
+            location: 'Living Room',
+            lighting: 'Morning'
+        };
+
+        let generatedIdeasStore = [];
+        let selectedIdeaObj = null;
+
+        function initApp() {
+            updateSettings();
+        }
+
+        function updateSettings() {
+            const petEl = document.getElementById('setting-pet');
+            const genreEl = document.getElementById('setting-genre');
+            const locEl = document.getElementById('setting-location');
+            const lightEl = document.getElementById('setting-lighting');
+            if (petEl) currentSettings.pet = petEl.value;
+            if (genreEl) currentSettings.genre = genreEl.value;
+            if (locEl) currentSettings.location = locEl.value;
+            if (lightEl) currentSettings.lighting = lightEl.value;
+        }
+
+        function applyPresetIdea(text) {
+            document.getElementById('video-idea-input').value = `${currentSettings.pet} ${text}`;
+            showToast(`Preset ditempel untuk ${currentSettings.pet}!`, 'info');
+        }
+
+        function showToast(message, type) {
+            type = type || 'success';
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-white border-[#1b9a86] text-[#0b2c27]' :
+                type === 'error' ? 'bg-[#fdf3f0] border-[#b34033] text-[#b34033]' :
+                'bg-white border-[#0b7c6c] text-[#0b2c27]';
+            const iconClass = type === 'success' ? 'fa-circle-check text-[#1b9a86]' :
+                type === 'error' ? 'fa-circle-exclamation text-[#b34033]' :
+                'fa-circle-info text-[#0b7c6c]';
+            toast.className =
+                `px-4 py-3 rounded-xl border text-xs font-bold shadow-xl backdrop-blur-md flex items-center gap-2 transition-all duration-300 transform translate-y-2 pointer-events-auto ${bgColor}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${iconClass}"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function generate10Ideas() {
+            updateSettings();
+            const userInput = document.getElementById('video-idea-input').value.trim();
+            const btn = document.getElementById('btn-generate-ideas');
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Membuat 10 Ide Viral...</span>`;
+
+            setTimeout(() => {
+                const pet = currentSettings.pet;
+                const genre = currentSettings.genre;
+                const loc = currentSettings.location;
+
+                const baseThemes = [
+                    { title: `Rahasia Cerdas Si ${pet}`, story: `${pet} secara tidak sengaja menemukan cara membuka tempat penyimpanan makanan di ${loc} saat owner tidak melihat.` },
+                    { title: `${pet} & Cermin Ajaib`, story: `${pet} pertama kali melihat bayangannya di cermin ${loc}, menunjukkan ekspresi kebingungan yang sangat menggemaskan.` },
+                    { title: `Misi Pencurian Makanan`, story: `${pet} mengendap-endap mendekati mangkuk makanan di ${loc} dengan gerakan sangat pelan dan hati-hati.` },
+                    { title: `Kejutan Tak Terduga`, story: `${pet} kaget melihat benda kecil bergerak di ${loc} lalu melompat dengan refleks super lucu.` },
+                    { title: `Tertidur Di Tempat Aneh`, story: `${pet} ketahuan mengantuk berat dan akhirnya tertidur lelap dengan posisi unik di sudut ${loc}.` },
+                    { title: `Drama Mainan Kesayangan`, story: `${pet} tidak mau membagikan mainan favoritnya di ${loc} dan memeluknya erat-erat.` },
+                    { title: `Momen Manis Bareng Owner`, story: `${pet} mendekati tangan owner di ${loc} untuk meminta elusan kepala secara manja.` },
+                    { title: `Penyelamatan Lucu`, story: `${pet} mencoba 'menyelamatkan' benda kesayangan yang tersangkut di bawah perabotan ${loc}.` },
+                    { title: `Reaksi Bau Aneh`, story: `${pet} mencium bau buah/makanan baru di ${loc} lalu menunjukkan ekspresi wajah yang sangat konyol.` },
+                    { title: `Pemberontakan Kecil`, story: `${pet} pura-pura tidak mendengar panggilan owner di ${loc} sambil melirik pelan.` }
+                ];
+
+                if (userInput) {
+                    baseThemes[0] = {
+                        title: `Ide Pilihan: ${userInput.substring(0, 25)}...`,
+                        story: `${userInput} di area ${loc} dengan gaya ${genre.toLowerCase()}.`
+                    };
+                }
+
+                generatedIdeasStore = baseThemes;
+                renderIdeasGrid();
+
+                document.getElementById('section-ideas').classList.remove('hidden');
+                document.getElementById('section-ideas').scrollIntoView({ behavior: 'smooth' });
+
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> <span>Generate 10 Ide Viral</span>`;
+                showToast("10 Ide Viral berhasil dibuat!", "success");
+            }, 600);
+        }
+
+        function renderIdeasGrid() {
+            const container = document.getElementById('ideas-container');
+            container.innerHTML = '';
+
+            generatedIdeasStore.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className =
+                    "rk-card p-4 rounded-2xl flex flex-col justify-between space-y-3 cursor-pointer group border border-[#e2eee9] hover:border-[#1b9a86]";
+                card.onclick = () => selectIdea(index);
+
+                card.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold text-[#0b7c6c] bg-[#f2f8f6] px-2 py-0.5 rounded-md border border-[#e2eee9]">Idea ${index + 1}</span>
+                            <span class="text-[10px] text-[#4b6a64] font-semibold">${currentSettings.genre}</span>
+                        </div>
+                        <h3 class="text-xs font-bold text-[#0b2c27] group-hover:text-[#0b7c6c] transition">${item.title}</h3>
+                        <p class="text-[11px] text-[#4b6a64] line-clamp-2 leading-relaxed">${item.story}</p>
+                    </div>
+                    <div class="pt-2 border-t border-[#e2eee9] flex items-center justify-between">
+                        <span class="text-[10px] text-[#4b6a64]"><i class="fa-solid fa-location-dot text-[#1b9a86]"></i> ${currentSettings.location}</span>
+                        <button class="text-[11px] font-bold text-[#0b7c6c] group-hover:text-white bg-[#f2f8f6] group-hover:bg-[#0b7c6c] px-3 py-1 rounded-lg transition flex items-center gap-1 border border-[#e2eee9]">
+                            <span>Pilih Ide Ini</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectIdea(index) {
+            selectedIdeaObj = generatedIdeasStore[index];
+
+            document.getElementById('output-selected-title').innerText = `Idea ${index + 1}: ${selectedIdeaObj.title}`;
+            document.getElementById('output-selected-desc').innerText = selectedIdeaObj.story;
+
+            const prompts = buildPromptsForIdea(selectedIdeaObj);
+
+            document.getElementById('prompt-image-text').innerText = prompts.imagePrompt;
+            document.getElementById('prompt-motion1-text').innerText = prompts.motionPrompt1;
+            document.getElementById('prompt-motion2-text').innerText = prompts.motionPrompt2;
+
+            document.getElementById('section-output').classList.remove('hidden');
+            document.getElementById('section-output').scrollIntoView({ behavior: 'smooth' });
+
+            showToast(`Prompts untuk Idea #${index + 1} berhasil dibuat!`, 'success');
+        }
+
+        function buildPromptsForIdea(idea) {
+            const pet = currentSettings.pet.toLowerCase();
+            const location = currentSettings.location.toLowerCase();
+            const lighting = currentSettings.lighting.toLowerCase();
+
+            const mandatoryTags =
+                "photorealistic, ultra realistic 8k, smartphone footage shot on iPhone 15 Pro handheld, 9:16 vertical ratio, natural lighting, authentic home environment, real pet anatomy, highly detailed realistic fur, realistic physics, camera autofocus breathing, subtle hand tremor, no text, no logo, no watermark, no music, sound effects only";
+
+            const imagePrompt =
+                `Vertical smartphone eye-level photo of an adorable realistic ${pet} in an authentic home ${location}. ${idea.story} The scene is naturally lit by ${lighting} lighting coming from nearby windows. Highly detailed texture of realistic pet fur, whiskers, and expressive eyes. Shallow depth of field with blurry soft background of a modern cozy ${location}. Raw footage aesthetics, unedited candid moment, ${mandatoryTags}.`;
+
+            const motionPrompt1 =
+                `Continuing directly from the initial frame: A casual smartphone handheld video capturing the ${pet} in the home ${location}. The camera moves with slight natural handheld movement and subtle jitter. The ${pet} exhibits realistic pet behavior, moving naturally towards the camera with curious facial expressions. Soft ambient sounds of the household in the background. Owner's hand faintly visible at the corner. Short natural dialogue from owner off-camera: "Hey buddy, what are you doing there?". Clear realistic sound effects of [SFX: soft paw pitter-patter on floor, gentle purring/snuffling, subtle room ambience]. Smooth natural physics, ${mandatoryTags}.`;
+
+            const motionPrompt2 =
+                `Seamlessly continuing from Motion Prompt 1: The smartphone camera follows the ${pet}'s reaction as it completes the action with a satisfying cute ending in the ${location}. The ${pet} looks directly at the phone lens with an adorable candid reaction, shaking its head gently. The handheld camera performs a slight natural reframing focus. Short closing dialogue from owner off-camera: "You got caught red-handed!". Realistic home ambience with high quality sound effects of [SFX: cute pet squeak/soft meow, rustling background sound, soft chuckle from owner]. Perfect visual continuity, heartwarming conclusion, ${mandatoryTags}.`;
+
+            return {
+                imagePrompt: imagePrompt,
+                motionPrompt1: motionPrompt1,
+                motionPrompt2: motionPrompt2
+            };
+        }
+
+        function copyTextToClipboard(text, successMessage) {
+            if (!text) {
+                showToast("Tidak ada teks untuk disalin", "error");
+                return;
+            }
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+
+            textArea.focus();
+            textArea.select();
+
+            let successful = false;
+            try {
+                successful = document.execCommand('copy');
+            } catch (err) {
+                console.error("execCommand error: ", err);
+            }
+
+            document.body.removeChild(textArea);
+
+            if (successful) {
+                showToast(successMessage, 'success');
+            } else if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast(successMessage, 'success');
+                }).catch(() => {
+                    showToast('Gagal menyalin teks ke clipboard.', 'error');
+                });
+            } else {
+                showToast('Gagal menyalin teks. Periksa izin browser.', 'error');
+            }
+        }
+
+        function copyToClipboard(elementId, label) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            const text = element.innerText || element.textContent;
+            copyTextToClipboard(text, `${label} berhasil disalin!`);
+        }
+
+        function copyAllPrompts() {
+            const img = document.getElementById('prompt-image-text')?.innerText || '';
+            const m1 = document.getElementById('prompt-motion1-text')?.innerText || '';
+            const m2 = document.getElementById('prompt-motion2-text')?.innerText || '';
+
+            if (!img && !m1 && !m2) {
+                showToast("Belum ada prompt yang dihasilkan!", "error");
+                return;
+            }
+
+            const fullText = `=== IMAGE PROMPT ===\n${img}\n\n=== MOTION PROMPT 1 ===\n${m1}\n\n=== MOTION PROMPT 2 ===\n${m2}`;
+            copyTextToClipboard(fullText, `Semua Prompt (Image + Motion 1 & 2) berhasil disalin!`);
+        }
+
+        function downloadAllTxt() {
+            const img = document.getElementById('prompt-image-text').innerText;
+            const m1 = document.getElementById('prompt-motion1-text').innerText;
+            const m2 = document.getElementById('prompt-motion2-text').innerText;
+
+            const title = selectedIdeaObj ? selectedIdeaObj.title : "Viral_Pet_Prompts";
+            const fullText =
+                `AI VIRAL PET VIDEO PROMPT PACKAGE (RuangKreator Theme)\nPet: ${currentSettings.pet} | Genre: ${currentSettings.genre} | Location: ${currentSettings.location}\n==================================================\n\n[IMAGE PROMPT]\n${img}\n\n[MOTION PROMPT 1]\n${m1}\n\n[MOTION PROMPT 2]\n${m2}\n`;
+
+            const blob = new Blob([fullText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_RuangKreator_Prompts.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast("File TXT berhasil diunduh!", "success");
+        }
+
+        function resetAll() {
+            document.getElementById('video-idea-input').value = '';
+            document.getElementById('section-ideas').classList.add('hidden');
+            document.getElementById('section-output').classList.add('hidden');
+            generatedIdeasStore = [];
+            selectedIdeaObj = null;
+            showToast("Aplikasi berhasil di-reset!", "info");
+        }
+    </script>
+
+</body>
+</html>
